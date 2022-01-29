@@ -18,5 +18,6 @@ Imports:
     ggshakeR,
     jsonlite,
     lubridate,
+    readxl,
     tidyr,
     worldfootballR
