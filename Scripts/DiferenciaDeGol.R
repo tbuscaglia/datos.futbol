@@ -261,29 +261,27 @@ promedio_total <- tibble(
   prom_temp_7,
   prom_temp_8
 ) %>%
-  mutate(across(c(
-    prom_temp_1, prom_temp_2, prom_temp_3, prom_temp_4,
-    prom_temp_5, prom_temp_6, prom_temp_7, prom_temp_8
-    ), 
-    ~ round(., digits = 2)
-   ),
-   total_promedio = mean( 
-     prom_temp_1, prom_temp_2, prom_temp_3, prom_temp_4,
-     prom_temp_5, prom_temp_6, prom_temp_7, prom_temp_8
-    )
-  ) %>%
-  select(-c(total_promedio)) %>% 
+  mutate(across(everything(), ~ round(., digits = 2))) %>%
   pivot_longer(cols = everything()) %>% 
   rename(
     temporada = name,
     promedio = value
-  ) 
-  
+    ) 
+
+total_promedio <-  mean(c(
+  prom_temp_1, prom_temp_2, prom_temp_3, prom_temp_4,
+  prom_temp_5, prom_temp_6, prom_temp_7, prom_temp_8
+  )
+)
 # 8 - Graficar ------------------------------------------------------------
 
 promedio_total %>% 
 ggplot() +
-  geom_point(mapping = aes(temporada, promedio), size = 3) 
+  geom_point(mapping = aes(temporada, promedio), size = 3) +
+  geom_hline(yintercept = total_promedio, linetype = "dashed", color = "red") +
+labs(title = "Diferencia Entre GD de un año y Posicion el Año Siguiente") +
+  xlab("Temporadas")+
+  ylab("Promedio Diferencias")
 
 
 
