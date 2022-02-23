@@ -2,6 +2,8 @@
 
 # **Recursos:**
 
+### [Mas Recursos](https://github.com/matiasmascioto/awesome-soccer-analytics#data)
+
 ## 1 - Bases de datos
 
 - [engsoccerdata](https://github.com/jalapic/engsoccerdata)
@@ -9,6 +11,7 @@
 - [itscalledsoccer](https://www.americansocceranalysis.com/home/2022/2/9/introducing-itscalledsoccer)
 - [footballdatr](https://github.com/Torvaney/footballdatr)
 - [understatr](https://github.com/ewenme/understatr)
+- [metrica-sports](https://github.com/metrica-sports/sample-data)
 
 ## 2 - Visualizacion
 
