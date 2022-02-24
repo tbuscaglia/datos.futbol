@@ -1,37 +1,26 @@
-# datos.futbol
 
-# **Recursos:**
+# Indice de Rendimiento
 
-### [Mas Recursos](https://github.com/matiasmascioto/awesome-soccer-analytics#data)
+### Idea General:
 
-## 1 - Bases de datos
+Crear un indice que mida el rendimiento de los jugadores en base a las estadisticas individuales de los jugadores. 
 
-- [538 datasets](https://github.com/fivethirtyeight/data)
-- [engsoccerdata](https://github.com/jalapic/engsoccerdata)
-- [worldfootballR](https://github.com/JaseZiv/worldfootballR)
-- [itscalledsoccer](https://www.americansocceranalysis.com/home/2022/2/9/introducing-itscalledsoccer)
-- [footballdatr](https://github.com/Torvaney/footballdatr)
-- [understatr](https://github.com/ewenme/understatr)
-- [metrica-sports](https://github.com/metrica-sports/sample-data)
-- [rMLS](https://github.com/RyanG73/rMLS)
-- [football-data](https://github.com/schochastics/football-data)
-- [Results (Kaggle)](https://www.kaggle.com/martj42/international-football-results-from-1872-to-2017)
-- [Stadium data](https://data.world/johayes13/football-soccer-stadiums)
-- [Transfermrkt](https://data.world/dcereijo/player-scores)
-- [Soccer Power Index](https://data.world/fivethirtyeight/soccer-spi)
-- [2018 World Cup](https://data.world/fivethirtyeight/fifa-world-cup-2018)
-- 
+### Planificacion:
 
-## 2 - Visualizacion
+1 - Traer las estadisticas de los jugadores para un partido en especifico. 
 
-- [ggshakeR](https://github.com/abhiamishra/ggshakeR)
-- [soccermatics](https://github.com/JoGall/soccermatics)
-- [CodaBonito](https://opensource.pysport.org/project/CodaBonito)
-- [soccergaphR](https://github.com/saso008/soccergraphR)
-- [ggsoccer](https://github.com/Torvaney/ggsoccer)
-- [FcRStats](https://github.com/FCrSTATS/fc.rstats)
+2 - Definir el puntaje inicial. 
 
-## 3 - Modeling
+3 - Definir cuanto peso asignarle a cada accion realizada por los jugadores. (Peso segun posicion)
 
-- [Regista](https://github.com/Torvaney/regista)
-- [goalmodel](https://github.com/opisthokonta/goalmodel)
+4 - Calcular valor agregado para defensa, pases, ataque y otras estadisticas. 
+
+5 - Al puntaje inicial sumarle y restarle los puntos correspondientes segun el peso asignado anteriormente. 
+
+### Output:
+
+Una tabla con la informacion del jugador (Nombre, Posicion), el puntaje inicial (a definir, ej: 5,00), valor agregado de pases, valor agregado en defensa y ataque, mas otras estadisticas (Tarjetas, etc.) 
+
+| Jugador | Posicion | Puntaje Inicial | Defensa | Pases | Ataque | Otros | Total |
+| ------- | -------- | --------------- | ------- | ----- | ------ | ----- | ----- |
+| Fulano  |    D     |      5.00       | + 2.05  | + 0.2 | - 0.41 | - 0.38|  6.46 |
