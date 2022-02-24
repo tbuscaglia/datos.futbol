@@ -2,7 +2,7 @@
 
 ### Idea General:
 
-Crear un indice que mida el rendimiento de los jugadores en base a sus estadisticas individuales de los jugadores. 
+Crear un indice que mida el rendimiento de los jugadores en cada partido. 
 
 ### Planificacion:
 
