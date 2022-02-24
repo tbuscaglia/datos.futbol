@@ -23,4 +23,4 @@ Una tabla con la informacion del jugador (Nombre, Posicion), el puntaje inicial 
 
 | Jugador | Posicion | Puntaje Inicial | Defensa | Pases | Ataque | Otros | Total |
 | ------- | -------- | --------------- | ------- | ----- | ------ | ----- | ----- |
-| Fulano  |    D     |      5.00       | + 2.05  | + 0.2 | - 0.41 | - 0.38|  6.46 |
+| Fulano  | Def.Cen  |      5.00       | + 2.05  | + 0.2 | - 0.41 | - 0.38|  6.46 |
