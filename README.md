@@ -13,6 +13,8 @@
 - [understatr](https://github.com/ewenme/understatr)
 - [metrica-sports](https://github.com/metrica-sports/sample-data)
 - [rMLS](https://github.com/RyanG73/rMLS)
+- [football-data](https://github.com/schochastics/football-data)
+- [Results (Kaggle)](https://www.kaggle.com/martj42/international-football-results-from-1872-to-2017)
 
 ## 2 - Visualizacion
 
