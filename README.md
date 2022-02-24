@@ -3,24 +3,21 @@
 
 ### Idea General:
 
-Crear un indice que mida el rendimiento de los jugadores en base a las estadisticas individuales de los jugadores. 
+Crear un indice que mida el rendimiento de los jugadores en cada partido. 
 
 ### Planificacion:
 
 1 - Traer las estadisticas de los jugadores para un partido en especifico. 
 
-2 - Definir el puntaje inicial. 
+2 - Definir las acciones que vamos a utilizar, ejemplo: cantidad de pases concretados. 
 
-3 - Definir cuanto peso asignarle a cada accion realizada por los jugadores. (Peso segun posicion)
-
-4 - Calcular valor agregado para defensa, pases, ataque y otras estadisticas. 
-
-5 - Al puntaje inicial sumarle y restarle los puntos correspondientes segun el peso asignado anteriormente. 
+3 - Ponderar las acciones realizadas por los jugadores para poder armar el índice
 
 ### Output:
 
-Una tabla con la informacion del jugador (Nombre, Posicion), el puntaje inicial (a definir, ej: 5,00), valor agregado de pases, valor agregado en defensa y ataque, mas otras estadisticas (Tarjetas, etc.) 
+Una tabla con la informacion del jugador (Nombre, Posicion, cantidad de pases completados, metros recorridos, etc.). 
 
-| Jugador | Posicion | Puntaje Inicial | Defensa | Pases | Ataque | Otros | Total |
-| ------- | -------- | --------------- | ------- | ----- | ------ | ----- | ----- |
-| Fulano  | Def.Cen  |      5.00       | + 2.05  | + 0.2 | - 0.41 | - 0.38|  6.46 |
+| Jugador | Posicion | Pases completados | Mts corridos | Valuación |
+| ------- | -------- | ----------------- | ------------ | --------- |
+| Fulano  | Def.Cen  |      5/10         |     300      |   6.46    | 
+
