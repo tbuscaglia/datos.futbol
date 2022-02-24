@@ -1,3 +1,4 @@
+
 # Indice de Rendimiento
 
 ### Idea General:
@@ -14,8 +15,9 @@ Crear un indice que mida el rendimiento de los jugadores en cada partido.
 
 ### Output:
 
-Una tabla con la informacion del jugador (Nombre, Posicion, cantidad de pases completados, metros recorridos), el puntaje inicial (a definir, ej: 5,00), valor agregado de pases, valor agregado en defensa y ataque, mas otras estadisticas (Tarjetas, etc.) 
+Una tabla con la informacion del jugador (Nombre, Posicion, cantidad de pases completados, metros recorridos, etc.). 
 
 | Jugador | Posicion | Pases completados | Mts corridos | Valuación |
 | ------- | -------- | ----------------- | ------------ | --------- |
 | Fulano  | Def.Cen  |      5/10         |     300      |   6.46    | 
+
