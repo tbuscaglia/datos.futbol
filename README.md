@@ -6,6 +6,7 @@
 
 ## 1 - Bases de datos
 
+- [538 datasets](https://github.com/fivethirtyeight/data)
 - [engsoccerdata](https://github.com/jalapic/engsoccerdata)
 - [worldfootballR](https://github.com/JaseZiv/worldfootballR)
 - [itscalledsoccer](https://www.americansocceranalysis.com/home/2022/2/9/introducing-itscalledsoccer)
@@ -15,6 +16,11 @@
 - [rMLS](https://github.com/RyanG73/rMLS)
 - [football-data](https://github.com/schochastics/football-data)
 - [Results (Kaggle)](https://www.kaggle.com/martj42/international-football-results-from-1872-to-2017)
+- [Stadium data](https://data.world/johayes13/football-soccer-stadiums)
+- [Transfermrkt](https://data.world/dcereijo/player-scores)
+- [Soccer Power Index](https://data.world/fivethirtyeight/soccer-spi)
+- [2018 World Cup](https://data.world/fivethirtyeight/fifa-world-cup-2018)
+- 
 
 ## 2 - Visualizacion
 
