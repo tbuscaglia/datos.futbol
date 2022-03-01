@@ -11,13 +11,19 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Imports: 
+    CodaBonito,
     devtools,
     dplyr,
+    engsoccerdata,
+    footballdatr,
     footballR,
     ggplot2,
     ggshakeR,
     jsonlite,
     lubridate,
     readxl,
+    rMLS,
+    StatsbombR,
     tidyr,
+    understatr,
     worldfootballR
