@@ -26,17 +26,17 @@ partido <- "https://fbref.com/en/matches/4e263347/West-Ham-United-Newcastle-Unit
 
 # *1 - get_advanced_match_stats -------------------------------------------
 
-passing <- as_tibble(get_advanced_match_stats(
+passing <- get_advanced_match_stats(
   match_url      = partido, 
   stat_type      = "passing",
   team_or_player = "player"
-  ) 
 ) %>%
+  filter(Team == "West Ham United") %>% 
   select(-c(
     starts_with(c("Home", "Away")),
     League, Gender, Country, Season, 
     Match_Date, Matchweek, Game_URL,
-    Player_Num, Nation, Age
+    Player_Num, Nation, Age, Team, Pos
     )
   )
 
@@ -45,26 +45,28 @@ possession <- get_advanced_match_stats(
   stat_type      = "possession",
   team_or_player = "player"
 ) %>% 
+  filter(Team == "West Ham United") %>% 
   select(-c(
-    starts_with(c("Home", "Away")), 
+    starts_with(c("Home", "Away")),
     League, Gender, Country, Season, 
     Match_Date, Matchweek, Game_URL,
-    Player_Num, Nation, Age
+    Player_Num, Nation, Age, Team, Pos
+    )
   )
-)
 
 defense <- get_advanced_match_stats(
   match_url      = partido, 
   stat_type      = "defense",
   team_or_player = "player"
 )%>% 
+  filter(Team == "West Ham United") %>% 
   select(-c(
-    starts_with(c("Home", "Away")), 
+    starts_with(c("Home", "Away")),
     League, Gender, Country, Season, 
     Match_Date, Matchweek, Game_URL,
-    Player_Num, Nation, Age
+    Player_Num, Nation, Age, Team, Pos
+    )
   )
-)
 
 stats <- left_join(
    passing,
