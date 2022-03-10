@@ -42,6 +42,14 @@ pases <- get_advanced_match_stats(
     across(c(CmpPerMin, AttPerMin), ~ round(., digits = 3))
   )
 
+cortes <- c(0, 0.2, 0.4, 0.6, 0.8, 1)
+
+percentil <- quantile(pases$Cmp_percent_Total, cortes) %>%
+  tibble(
+    valor = percentil,
+    porcentaje = scales::percent(cortes)
+  ) 
+
 # 5 - Crear Puntaje -------------------------------------------------------
 
 pases <- pases %>% 
@@ -50,22 +58,26 @@ pases <- pases %>%
     Pts_Min         = Min * 0.01,
     Pts_Cmp_Total   = Cmp_Total * 0.05,
     Pts_Err_Total   = Mss_Total * 0.05,
-    Pts_Cmp_percent = if (Cmp_percent_Quantile < 25) {
-      -2
-    } else if (between(Cmp_percent_Quantile, 20, 50)) {
-      -1
-    } else if (between(Cmp_percent_Quantile, 50, 60)) {
-      1
-    } else if (between(Cmp_percent_Quantile, 60, 70)) {
-      1.5
-    } else if (between(Cmp_percent_Quantile, 70, 80)) {
-      2
-    } else if (between(Cmp_percent_Quantile, 80, 90)) {
-      2.5
-    } else if (between(Cmp_percent_Quantile, 90, 100)) {
-      3
-    }
-  )
+    Pts_Cmp_percent = if (Cmp_percent_Total == tabla_percentil[1]) {-1}
+    ,
+    Pts_Total = Pts_Inicial + Pts_min + Pts_Cmp_Total + Pts_Err_Total + Pts_Cmp_percent,
+    Pts_Total = ifelse(Pts_Total > 10, 10, Pts_Total)
+  ) %>% 
+  select(starts_with("Pts"))
 
-
+# Pts_Cmp_percent = if (Cmp_percent_Quantile < 25) {
+#   -2
+# } else if (between(Cmp_percent_Quantile, 20, 50)) {
+#   -1
+# } else if (between(Cmp_percent_Quantile, 50, 60)) {
+#   1
+# } else if (between(Cmp_percent_Quantile, 60, 70)) {
+#   1.5
+# } else if (between(Cmp_percent_Quantile, 70, 80)) {
+#   2
+# } else if (between(Cmp_percent_Quantile, 80, 90)) {
+#   2.5
+# } else if (between(Cmp_percent_Quantile, 90, 100)) {
+#   3
+# }
 
