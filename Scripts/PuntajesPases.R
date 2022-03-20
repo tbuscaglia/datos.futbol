@@ -6,7 +6,7 @@
 # 2 - Setup ---------------------------------------------------------------
 
 paquetes <- list(
-  "Tidyverse"     = list("dplyr", "tidyr"),
+  "Tidyverse"     = list("dplyr", "tidyr", "tidyselect", "stringr"),
   "Base de Datos" = list("worldfootballR"),
   "Graficar"      = list("ggplot2")
 )
@@ -45,9 +45,25 @@ pases <- get_advanced_match_stats(
     AttPerMin            = Att_Total / Min,
     Mss_percent_Total    = 100 - Cmp_percent_Total,
     Mss_Total            = Att_Total - Cmp_Total,
-    
+    Pos_Rel              = case_when(
+      Pos == "GK" ~ 1,
+      str_detect(Pos, "CB") ~ 2,
+      str_detect(Pos, "LB") ~ 3,
+      str_detect(Pos, "RB") ~ 4,
+      str_detect(Pos, "WB") ~ 5,
+      str_detect(Pos, "DM") ~ 6,
+      str_detect(Pos, "AM") ~ 7,
+      str_detect(Pos, "LW") ~ 8,
+      str_detect(Pos, "RW") ~ 9,
+      str_detect(Pos, "FW") ~ 10
+    ),
+    Pos_Rel = as.factor(Pos_Rel),
     across(c(CmpPerMin, AttPerMin), ~ round(., digits = 3))
   )
+
+posiciones <- pases %>% 
+  select(Player, Pos, Pos_Rel)
+
 # Cmp_percent_Quantile = quantile(Cmp_percent_Total, seq(0, 1, nrow(pases))),
 
 # cortes <- c(0, 0.2, 0.4, 0.6, 0.8, 1)
@@ -101,7 +117,7 @@ puntos <- pases %>%
 
 
 puntos %>% 
-  ggplot(mapping = aes(x = Player, y = Pts_Total, color = Pos, fill = Pos)) +
+  ggplot(mapping = aes(x = Player, y = Pts_Total, color = Pos_Rel, fill = Pos_Rel)) +
   geom_col() +
   coord_flip()
 
