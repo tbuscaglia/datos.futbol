@@ -24,6 +24,8 @@ Imports:
     readxl,
     rMLS,
     StatsbombR,
+    stringr,
     tidyr,
+    tidyselect,
     understatr,
     worldfootballR
