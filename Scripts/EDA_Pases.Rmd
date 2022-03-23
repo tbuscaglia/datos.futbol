@@ -1,0 +1,78 @@
+---
+title: "EDA"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+paquetes <- list(
+  "Tidyverse"     = list("dplyr", "tidyr", "tidyselect", "stringr", "ggplot2"),
+  "API" = list("worldfootballR")
+)
+
+lapply(
+  as.list(
+    c(paquetes, recursive = TRUE, use.names = FALSE)),
+  function(x) {
+    library(x, character.only = TRUE, verbose = FALSE)
+  })
+
+rm(list = c("paquetes"))
+
+
+
+```
+
+```{r partido}
+
+partido <- "https://fbref.com/en/matches/6e11eac6/Tottenham-Hotspur-Everton-March-7-2022-Premier-League"
+```
+
+```{r estadisticas, echo=FALSE}
+
+estadisticas <- get_advanced_match_stats(
+  match_url      = partido,
+  stat_type      = "passing",
+  team_or_player = "player"
+) 
+```
+
+```{r estadisticas, echo=FALSE}
+
+pases_cortos <- estadisticas %>% 
+  mutate(
+    percent_short = scales::percent(Att_Short / TotDist_Total)
+    # percent_short = as.integer(percent_short),
+    # percent_short = round(percent_short, digits = 2)
+  ) %>% 
+  select(percent_short, TotDist_Total, Cmp_Short)
+
+```
+
+```{r estadisticas, echo=FALSE}
+pases_cortos %>%
+  ggplot(mapping = aes(x = TotDist_Total, y = percent_short, size = Cmp_Short)) +
+  geom_point()
+
+
+
+```
+
+```{r estadisticas, echo=FALSE}
+
+pases_largos <- estadisticas %>% 
+  mutate(
+    percent_long = scales::percent(Att_Long / TotDist_Total)
+  ) %>% 
+  select(percent_long, TotDist_Total, Cmp_Long, Team)
+
+```
+
+```{r estadisticas, echo=FALSE}
+
+pases_largos %>%
+  ggplot(mapping = aes(x = TotDist_Total, y = percent_long, size = Cmp_Long, color = Team)) +
+  geom_point()
+```
