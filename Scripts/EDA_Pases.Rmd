@@ -64,7 +64,7 @@ pases_cortos %>%
 
 pases_largos <- estadisticas %>% 
   mutate(
-    percent_long = scales::percent(Att_Long / TotDist_Total)
+    percent_long = Att_Long / TotDist_Total
   ) %>% 
   select(percent_long, TotDist_Total, Cmp_Long, Team)
 
@@ -74,5 +74,11 @@ pases_largos <- estadisticas %>%
 
 pases_largos %>%
   ggplot(mapping = aes(x = TotDist_Total, y = percent_long, size = Cmp_Long, color = Team)) +
-  geom_point()
+  geom_point() +
+  scale_y_log10() +
+  geom_smooth(method = lm, se = FALSE) +
+  labs(title = "Proporcion de pases largos segun distancia total") +
+  xlab("Distancia total de pases") +
+  ylab("Log Porcentaje de pases largos del total") +
+  theme(panel.background = element_rect(fill = 'grey', colour = 'black'))
 ```
