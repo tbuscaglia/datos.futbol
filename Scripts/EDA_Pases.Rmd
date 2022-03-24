@@ -39,28 +39,34 @@ estadisticas <- get_advanced_match_stats(
 ) 
 ```
 
-```{r estadisticas, echo=FALSE}
+```{r pases cortos, echo=FALSE}
+
+# Calculo la proporcion de los pases totales que son pases cortos
 
 pases_cortos <- estadisticas %>% 
   mutate(
-    percent_short = scales::percent(Att_Short / TotDist_Total)
-    # percent_short = as.integer(percent_short),
-    # percent_short = round(percent_short, digits = 2)
+    percent_short = Att_Short / TotDist_Total 
   ) %>% 
-  select(percent_short, TotDist_Total, Cmp_Short)
-
+  select(percent_short, TotDist_Total, Cmp_Short, Team)
 ```
 
 ```{r estadisticas, echo=FALSE}
+
+# Grafico la relacion entre la distancia total de pases y la proporcion de pases cortos sobre el total
+
 pases_cortos %>%
-  ggplot(mapping = aes(x = TotDist_Total, y = percent_short, size = Cmp_Short)) +
-  geom_point()
-
-
-
+  ggplot(mapping = aes(x = TotDist_Total, y = percent_short, size = Cmp_Short, color = Team)) +
+  geom_point() +
+  geom_smooth(method = lm, se = FALSE) +
+  labs(title = "Proporcion de pases cortos segun distancia total") +
+  xlab("Distancia total de pases") +
+  ylab("Porcentaje de pases cortos del total") +
+  theme(panel.background = element_rect(fill = 'grey', colour = 'black'))
 ```
 
 ```{r estadisticas, echo=FALSE}
+
+# Mismo procedimiento que con los pasos cortos pero con pases largos
 
 pases_largos <- estadisticas %>% 
   mutate(
@@ -72,13 +78,33 @@ pases_largos <- estadisticas %>%
 
 ```{r estadisticas, echo=FALSE}
 
+# Grafico la relacion entre la distancia total de pases y la proporcion de pases largos sobre el total
+
 pases_largos %>%
   ggplot(mapping = aes(x = TotDist_Total, y = percent_long, size = Cmp_Long, color = Team)) +
   geom_point() +
-  scale_y_log10() +
   geom_smooth(method = lm, se = FALSE) +
   labs(title = "Proporcion de pases largos segun distancia total") +
   xlab("Distancia total de pases") +
-  ylab("Log Porcentaje de pases largos del total") +
+  ylab("Porcentaje de pases largos del total") +
   theme(panel.background = element_rect(fill = 'grey', colour = 'black'))
+```
+
+
+```{r estadisticas, echo=FALSE}
+
+# Calcular el desvio estandar y luego calcular que % de cambio del prom. representa
+# ese desvio. 
+
+standard_deviation <- estadisticas %>% 
+  mutate(
+    Cmp_Total_SD        = sd(Cmp_Total),
+    Cmp_Total_AV        = mean(Cmp_Total),
+    Cmp_total_Change_AV = (Cmp_Total_SD / Cmp_Total_AV) * 100 
+  ) %>% 
+  select(Cmp_Total, Cmp_Total_SD, Cmp_Total_AV, Cmp_total_Change_AV)
+
+
+
+
 ```
