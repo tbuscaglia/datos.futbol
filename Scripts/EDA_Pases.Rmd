@@ -25,50 +25,46 @@ rm(list = c("paquetes"))
 
 ```
 
-```{r partido}
-
-partido <- "https://fbref.com/en/matches/6e11eac6/Tottenham-Hotspur-Everton-March-7-2022-Premier-League"
-```
-
 ```{r estadisticas, echo=FALSE}
 
-estadisticas <- get_advanced_match_stats(
-  match_url      = partido,
-  stat_type      = "passing",
-  team_or_player = "player"
-) 
+pases_jugadores <- fb_big5_advanced_season_stats(
+  season_end_year = c(2018:2021),
+  stat_type       = "passing",
+  team_or_player  = "player"
+)
 ```
 
 ```{r pases cortos, echo=FALSE}
 
 # Calculo la proporcion de los pases totales que son pases cortos
 
-pases_cortos <- estadisticas %>% 
+pases_cortos <- pases_jugadores %>% 
+  filter(Mins_Per_90 > 10) %>% 
   mutate(
-    percent_short = Att_Short / TotDist_Total 
+    percent_short = scales::percent(Att_Short / TotDist_Total, accuracy = 0.01)
   ) %>% 
-  select(percent_short, TotDist_Total, Cmp_Short, Team)
+  select(Player, Squad, percent_short, TotDist_Total, Cmp_Short, Pos)
 ```
 
 ```{r estadisticas, echo=FALSE}
 
 # Grafico la relacion entre la distancia total de pases y la proporcion de pases cortos sobre el total
 
-pases_cortos %>%
-  ggplot(mapping = aes(x = TotDist_Total, y = percent_short, size = Cmp_Short, color = Team)) +
-  geom_point() +
-  geom_smooth(method = lm, se = FALSE) +
-  labs(title = "Proporcion de pases cortos segun distancia total") +
-  xlab("Distancia total de pases") +
-  ylab("Porcentaje de pases cortos del total") +
-  theme(panel.background = element_rect(fill = 'grey', colour = 'black'))
+ pases_cortos %>%
+   ggplot(mapping = aes(x = TotDist_Total, y = percent_short, size = Cmp_Short, color = Pos)) +
+   geom_point() +
+   geom_smooth(method = lm, se = FALSE) +
+   labs(title = "Proporcion de pases cortos segun distancia total") +
+   xlab("Distancia total de pases") +
+   ylab("Porcentaje de pases cortos del total") +
+   theme(panel.background = element_rect(fill = 'grey', colour = 'black'))
 ```
 
 ```{r estadisticas, echo=FALSE}
 
 # Mismo procedimiento que con los pasos cortos pero con pases largos
 
-pases_largos <- estadisticas %>% 
+pases_largos <- pases_jugadores %>% 
   mutate(
     percent_long = Att_Long / TotDist_Total
   ) %>% 
@@ -96,7 +92,7 @@ pases_largos %>%
 # Calcular el desvio estandar y luego calcular que % de cambio del prom. representa
 # ese desvio. 
 
-Cmp_Pases_Standard_Deviation <- estadisticas %>% 
+Cmp_Pases_Standard_Deviation <- pases_jugadores %>% 
   mutate(
     Cmp_Total_SD         = sd(Cmp_Total),
     Cmp_Total_AV         = mean(Cmp_Total),
