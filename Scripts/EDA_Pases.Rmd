@@ -1,0 +1,125 @@
+---
+title: "EDA"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+paquetes <- list(
+  "Tidyverse"     = list("dplyr", "tidyr", "tidyselect", "stringr", "ggplot2"),
+  "API" = list("worldfootballR")
+)
+
+lapply(
+  as.list(
+    c(paquetes, recursive = TRUE, use.names = FALSE)),
+  function(x) {
+    library(x, character.only = TRUE, verbose = FALSE)
+  })
+
+rm(list = c("paquetes"))
+
+
+
+```
+
+```{r partido}
+
+partido <- "https://fbref.com/en/matches/6e11eac6/Tottenham-Hotspur-Everton-March-7-2022-Premier-League"
+```
+
+```{r estadisticas, echo=FALSE}
+
+estadisticas <- get_advanced_match_stats(
+  match_url      = partido,
+  stat_type      = "passing",
+  team_or_player = "player"
+) 
+```
+
+```{r pases cortos, echo=FALSE}
+
+# Calculo la proporcion de los pases totales que son pases cortos
+
+pases_cortos <- estadisticas %>% 
+  mutate(
+    percent_short = Att_Short / TotDist_Total 
+  ) %>% 
+  select(percent_short, TotDist_Total, Cmp_Short, Team)
+```
+
+```{r estadisticas, echo=FALSE}
+
+# Grafico la relacion entre la distancia total de pases y la proporcion de pases cortos sobre el total
+
+pases_cortos %>%
+  ggplot(mapping = aes(x = TotDist_Total, y = percent_short, size = Cmp_Short, color = Team)) +
+  geom_point() +
+  geom_smooth(method = lm, se = FALSE) +
+  labs(title = "Proporcion de pases cortos segun distancia total") +
+  xlab("Distancia total de pases") +
+  ylab("Porcentaje de pases cortos del total") +
+  theme(panel.background = element_rect(fill = 'grey', colour = 'black'))
+```
+
+```{r estadisticas, echo=FALSE}
+
+# Mismo procedimiento que con los pasos cortos pero con pases largos
+
+pases_largos <- estadisticas %>% 
+  mutate(
+    percent_long = Att_Long / TotDist_Total
+  ) %>% 
+  select(percent_long, TotDist_Total, Cmp_Long, Team)
+
+```
+
+```{r estadisticas, echo=FALSE}
+
+# Grafico la relacion entre la distancia total de pases y la proporcion de pases largos sobre el total
+
+pases_largos %>%
+  ggplot(mapping = aes(x = TotDist_Total, y = percent_long, size = Cmp_Long, color = Team)) +
+  geom_point() +
+  geom_smooth(method = lm, se = FALSE) +
+  labs(title = "Proporcion de pases largos segun distancia total") +
+  xlab("Distancia total de pases") +
+  ylab("Porcentaje de pases largos del total") +
+  theme(panel.background = element_rect(fill = 'grey', colour = 'black'))
+```
+
+
+```{r estadisticas, echo=FALSE}
+
+# Calcular el desvio estandar y luego calcular que % de cambio del prom. representa
+# ese desvio. 
+
+Cmp_Pases_Standard_Deviation <- estadisticas %>% 
+  mutate(
+    Cmp_Total_SD         = sd(Cmp_Total),
+    Cmp_Total_AV         = mean(Cmp_Total),
+    Cmp_Total_Change_AV  = scales::percent(Cmp_Total_SD / Cmp_Total_AV),
+    Cmp_Short_SD         = sd(Cmp_Short),
+    Cmp_Short_AV         = mean(Cmp_Short),
+    Cmp_Short_Change_AV  = scales::percent(Cmp_Short_SD / Cmp_Short_AV),
+    Cmp_Medium_SD        = sd(Cmp_Medium),
+    Cmp_Medium_AV        = mean(Cmp_Medium),
+    Cmp_Medium_Change_AV = scales::percent(Cmp_Medium_SD / Cmp_Medium_AV),
+    Cmp_Long_SD          = sd(Cmp_Long),
+    Cmp_Long_AV          = mean(Cmp_Long),
+    Cmp_Long_Change_AV   = scales::percent(Cmp_Long_SD / Cmp_Long_AV)
+  ) %>% 
+  select(
+    Cmp_Short_Change_AV, 
+    Cmp_Medium_Change_AV, 
+    Cmp_Long_Change_AV,
+    Cmp_Total_Change_AV
+  ) %>% 
+  slice(1)
+
+
+
+
+```
