@@ -33,6 +33,25 @@ pases_jugadores <- fb_big5_advanced_season_stats(
   team_or_player  = "player"
 )
 ```
+ 
+```{r estadisticas, echo=FALSE} 
+
+# Estadistica descriptiva de los pases totales
+
+media_pases_totales <- round(
+  mean(pases_jugadores$Cmp_Total, trim = 0.1, na.rm = TRUE),
+  digits = 2
+  ) %>% 
+  print()
+
+mediana_pases_totales <- round(median(pases_jugadores$Cmp_Total, na.rm = TRUE), digits = 2) %>% 
+  print() 
+
+desvio_pases_totales <- round(sd(pases_jugadores$Cmp_Total, na.rm = TRUE), digits = 2) %>% 
+  print()
+
+``` 
+ 
 
 ```{r pases cortos, echo=FALSE}
 
