@@ -21,8 +21,6 @@ lapply(
 
 rm(list = c("paquetes"))
 
-
-
 ```
 
 ```{r estadisticas, echo=FALSE}
@@ -38,19 +36,43 @@ pases_jugadores <- fb_big5_advanced_season_stats(
 
 # Estadistica descriptiva de los pases totales
 
+pases_jugadores <- pases_jugadores %>% 
+  filter(Mins_Per_90 > 9)
+
 media_pases_totales <- round(
   mean(pases_jugadores$Cmp_Total, trim = 0.1, na.rm = TRUE),
   digits = 2
   ) %>% 
   print()
 
-mediana_pases_totales <- round(median(pases_jugadores$Cmp_Total, na.rm = TRUE), digits = 2) %>% 
+mediana_pases_totales <- round(median(pases_jugadores$Cmp_Total, na.rm = TRUE), digits = 2) %>%
   print() 
 
 desvio_pases_totales <- round(sd(pases_jugadores$Cmp_Total, na.rm = TRUE), digits = 2) %>% 
   print()
 
+plot_normal <- qqnorm(pases_jugadores$Cmp_Total, pch = 1, frame = FALSE) 
+
+pases_jugadores %>%
+ ggplot(aes(x = Cmp_Total)) +
+  geom_histogram(aes(y = ..density..), binwidth = .5, colour = "black", fill = "white") +
+  geom_density(alpha = .2, fill = "#FF6666") +
+  geom_vline(xintercept = media_pases_totales, color = "red") 
+  
+
 ``` 
+Mirando el grafico de densidad de la cantidad de pases totales por jugador
+se puede ver como la distribuicion de los pases totales de los jugadores acumula
+gran parte de sus datos al inicio. Luego se puede ver como se "achata" la campana.
+
+Esto se podria a llegar a intepretar de la siguiente forma: la mayoria de los jugadores
+tienen un rendimiento poco destacable. Si bien la media de la cantidad de pases totales
+es 723.57 la mediana es del 681. Esto indica que mas de la mitad de los jugadores
+se encuentran por debajo del promedio. 
+
+Por otro lado, al tener un desvio estandar de 442.82 se puede observar como hay multiples jugadores que rinden excesivamente por encima del promedio. Como los datos son pases 
+totales, tiene sentido que haya un desvio estandar relativamente alto ya que no se
+espera que un aruqero haga la misma cantidad de pases que un mediocampista. 
  
 
 ```{r pases cortos, echo=FALSE}
