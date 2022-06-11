@@ -8,8 +8,9 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 
 paquetes <- list(
-  "Tidyverse"     = list("dplyr", "tidyr", "tidyselect", "stringr", "ggplot2"),
-  "API" = list("worldfootballR")
+  "Tidyverse"   = list("dplyr", "tidyr", "tidyselect", "stringr", "ggplot2"),
+  "API"         = list("worldfootballR"), #API que trae datos, paquete instalado de GitHub 
+  "Estadistica" = list("fitdistrplus")
 )
 
 lapply(
@@ -23,140 +24,134 @@ rm(list = c("paquetes"))
 
 ```
 
-```{r estadisticas, echo=FALSE}
+```{r traer datos, echo=FALSE}
 
 pases_jugadores <- fb_big5_advanced_season_stats(
   season_end_year = c(2018:2021),
   stat_type       = "passing",
   team_or_player  = "player"
 )
+
 ```
- 
-```{r estadisticas, echo=FALSE} 
 
-# Estadistica descriptiva de los pases totales
+```{r jugadores podados, echo=FALSE} 
 
-pases_jugadores <- pases_jugadores %>% 
+# Descarto los jugadores que hayan jugado menos del 10% de los minutos totales
+
+pases_jugadores_podado <- pases_jugadores %>%
   filter(Mins_Per_90 > 9)
 
+```
+
+# Pases Totales
+
+A continuacion se hara un analisis de la cantidad de pases completados para todos los jugadores de las 5 grandes ligas de Europa (Inglaterra, Francia, España, Alemania, Italia). Los datos analizados son de los años 2018 a 2021. Para realizar el analisis se utilizara aquellos jugadores que hayan jugado mas del 10% de los minutos posibles. 
+
+## Estadistica Descriptiva:
+
+
+Media
+
+```{r media, echo=FALSE} 
+
 media_pases_totales <- round(
-  mean(pases_jugadores$Cmp_Total, trim = 0.1, na.rm = TRUE),
+  mean(pases_jugadores_podado$Cmp_Total, na.rm = TRUE),
   digits = 2
   ) %>% 
   print()
 
-mediana_pases_totales <- round(median(pases_jugadores$Cmp_Total, na.rm = TRUE), digits = 2) %>%
-  print() 
+``` 
 
-desvio_pases_totales <- round(sd(pases_jugadores$Cmp_Total, na.rm = TRUE), digits = 2) %>% 
+Mediana
+
+```{r mediana, echo=FALSE} 
+
+mediana_pases_totales <- round(median(pases_jugadores_podado$Cmp_Total, na.rm = TRUE), digits = 2) %>%
+  print() 
+  
+```  
+
+Desvio Estandar
+
+```{r desvio estandar, echo=FALSE} 
+
+desvio_pases_totales <- round(sd(pases_jugadores_podado$Cmp_Total, na.rm = TRUE), digits = 2) %>% 
   print()
 
-plot_normal <- qqnorm(pases_jugadores$Cmp_Total, pch = 1, frame = FALSE) 
+```
 
-pases_jugadores %>%
+### distribucion de Pases
+
+```{r distribucion de datos, echo=FALSE} 
+
+pases_jugadores_podado %>%
  ggplot(aes(x = Cmp_Total)) +
   geom_histogram(aes(y = ..density..), binwidth = .5, colour = "black", fill = "white") +
   geom_density(alpha = .2, fill = "#FF6666") +
   geom_vline(xintercept = media_pases_totales, color = "red") 
-  
+
 
 ``` 
-Mirando el grafico de densidad de la cantidad de pases totales por jugador
-se puede ver como la distribuicion de los pases totales de los jugadores acumula
-gran parte de sus datos al inicio. Luego se puede ver como se "achata" la campana.
 
-Esto se podria a llegar a intepretar de la siguiente forma: la mayoria de los jugadores
-tienen un rendimiento poco destacable. Si bien la media de la cantidad de pases totales
-es 723.57 la mediana es del 681. Esto indica que mas de la mitad de los jugadores
-se encuentran por debajo del promedio. 
+Esta funcion de densidad parece ser parecida a la distribucion de una funcion gamma. Al compararlo con una funcion de distribucion gamma de parametro "shape" igual a dos y luego tres se podria sospechar que el parametro de la distribucion de los datos va a estar cercano a esos numeros. 
 
-Por otro lado, al tener un desvio estandar de 442.82 se puede observar como hay multiples jugadores que rinden excesivamente por encima del promedio. Como los datos son pases 
-totales, tiene sentido que haya un desvio estandar relativamente alto ya que no se
-espera que un aruqero haga la misma cantidad de pases que un mediocampista. 
- 
+Distribucion Gamma, Shape = 2:
 
-```{r pases cortos, echo=FALSE}
+```{r distribucion gamma shape 2, echo=FALSE}  
 
-# Calculo la proporcion de los pases totales que son pases cortos
+set.seed(max(pases_jugadores_podado$Cmp_Total))
 
-pases_cortos <- pases_jugadores %>% 
-  filter(Mins_Per_90 > 10) %>% 
-  mutate(
-    percent_short = scales::percent(Att_Short / TotDist_Total, accuracy = 0.01)
-  ) %>% 
-  select(Player, Squad, percent_short, TotDist_Total, Cmp_Short, Pos)
-```
+N <- 6654
 
-```{r estadisticas, echo=FALSE}
+distribucion_gamma <- rgamma(N, shape = 2)
 
-# Grafico la relacion entre la distancia total de pases y la proporcion de pases cortos sobre el total
-
- pases_cortos %>%
-   ggplot(mapping = aes(x = TotDist_Total, y = percent_short, size = Cmp_Short, color = Pos)) +
-   geom_point() +
-   geom_smooth(method = lm, se = FALSE) +
-   labs(title = "Proporcion de pases cortos segun distancia total") +
-   xlab("Distancia total de pases") +
-   ylab("Porcentaje de pases cortos del total") +
-   theme(panel.background = element_rect(fill = 'grey', colour = 'black'))
-```
-
-```{r estadisticas, echo=FALSE}
-
-# Mismo procedimiento que con los pasos cortos pero con pases largos
-
-pases_largos <- pases_jugadores %>% 
-  mutate(
-    percent_long = Att_Long / TotDist_Total
-  ) %>% 
-  select(percent_long, TotDist_Total, Cmp_Long, Team)
+hist(distribucion_gamma, breaks = N, main = "")
 
 ```
 
-```{r estadisticas, echo=FALSE}
+Distribucion Gamma, Shape = 3:
 
-# Grafico la relacion entre la distancia total de pases y la proporcion de pases largos sobre el total
+```{r distribucion gamma shape 3, echo=FALSE} 
 
-pases_largos %>%
-  ggplot(mapping = aes(x = TotDist_Total, y = percent_long, size = Cmp_Long, color = Team)) +
-  geom_point() +
-  geom_smooth(method = lm, se = FALSE) +
-  labs(title = "Proporcion de pases largos segun distancia total") +
-  xlab("Distancia total de pases") +
-  ylab("Porcentaje de pases largos del total") +
-  theme(panel.background = element_rect(fill = 'grey', colour = 'black'))
-```
+distribucion_gamma <- rgamma(N, shape = 3)
 
-
-```{r estadisticas, echo=FALSE}
-
-# Calcular el desvio estandar y luego calcular que % de cambio del prom. representa
-# ese desvio. 
-
-Cmp_Pases_Standard_Deviation <- pases_jugadores %>% 
-  mutate(
-    Cmp_Total_SD         = sd(Cmp_Total),
-    Cmp_Total_AV         = mean(Cmp_Total),
-    Cmp_Total_Change_AV  = scales::percent(Cmp_Total_SD / Cmp_Total_AV),
-    Cmp_Short_SD         = sd(Cmp_Short),
-    Cmp_Short_AV         = mean(Cmp_Short),
-    Cmp_Short_Change_AV  = scales::percent(Cmp_Short_SD / Cmp_Short_AV),
-    Cmp_Medium_SD        = sd(Cmp_Medium),
-    Cmp_Medium_AV        = mean(Cmp_Medium),
-    Cmp_Medium_Change_AV = scales::percent(Cmp_Medium_SD / Cmp_Medium_AV),
-    Cmp_Long_SD          = sd(Cmp_Long),
-    Cmp_Long_AV          = mean(Cmp_Long),
-    Cmp_Long_Change_AV   = scales::percent(Cmp_Long_SD / Cmp_Long_AV)
-  ) %>% 
-  select(
-    Cmp_Short_Change_AV, 
-    Cmp_Medium_Change_AV, 
-    Cmp_Long_Change_AV,
-    Cmp_Total_Change_AV
-  ) %>% 
-  slice(1)
-
-
-
+hist(distribucion_gamma, breaks = N, main = "")
 
 ```
+
+Voy a utilizar el metodo estimacion de maxima verisimilitud (EMV) para calcular los parametros de la funcion gamma de los datos. El calculo devuelve los siguientes parametros:
+
+```{r distribucion gamma estimacion, echo=FALSE} 
+
+parametros_gamma <- fitdist(pases_jugadores_podado$Cmp_Total, distr = "gamma", method = "mle")
+
+parametros_gamma
+
+``` 
+
+La distribucion de una funcion gamma de los parametros calculados se grafica de la siguiente forma:
+
+```{r distribucion gamma estimacion grafico, echo=FALSE} 
+
+distribucion_datos <- rgamma(N, shape = 3.110569356, rate = 0.004032972)
+
+hist(distribucion_datos, breaks = N, main = "")
+
+``` 
+
+A la vista, parece estar bastante acertado a la distribucion de los datos de pases. 
+
+Para comprobar si los datos efectivamente siguen una distibucion gamma de los parametros encontrados voy a comparar las dos distribuciones
+
+```{r distribucion gamma demostracion, echo=FALSE} 
+
+data <- rgamma(N, shape = 3.110569356, rate = 0.004032972) + pases_jugadores_podado$Cmp_Total
+
+ans <- fitdist(data, distr = "gamma", method = "mle")
+
+plot(ans)
+
+``` 
+
+Tanto el P-P plot como el Q-Q plot son rectan con lo cual indica que sus distribuciones son identicas. Esto quiere decir que los parametros encontrados de la funcion de distribucion gamma son efectivamente los parametros de la distribucion de los datos de pases completados. 
+
