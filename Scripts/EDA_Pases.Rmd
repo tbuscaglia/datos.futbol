@@ -39,7 +39,7 @@ pases_jugadores <- fb_big5_advanced_season_stats(
 # Descarto los jugadores que hayan jugado menos del 10% de los minutos totales
 
 pases_jugadores_podado <- pases_jugadores %>%
-  filter(Mins_Per_90 > 9)
+  filter(Mins_Per_90 > 9, Cmp_Total > 0)
 
 ```
 
@@ -101,9 +101,9 @@ Distribucion Gamma, Shape = 2:
 
 ```{r distribucion gamma shape 2, echo=FALSE}  
 
-set.seed(max(pases_jugadores_podado$Cmp_Total))
+set.seed(max(pases_jugadores_podado$Cmp_Total, na.rm = TRUE))
 
-N <- 6654
+N <- nrow(pases_jugadores_podado)
 
 distribucion_gamma <- rgamma(N, shape = 2)
 
@@ -128,6 +128,7 @@ Voy a utilizar el metodo estimacion de maxima verisimilitud (EMV) para calcular 
 parametros_gamma <- fitdist(pases_jugadores_podado$Cmp_Total, distr = "gamma", method = "mle")
 
 parametros_gamma
+
 
 ``` 
 
@@ -276,7 +277,7 @@ promedio_pos <- pases_jugadores_podado %>%
 
 ```
 
-```{r distribucion por pais, echo=FALSE} 
+```{r distribucion por posicion, echo=FALSE} 
 
 promedio_pos %>% 
   ggplot(aes(x = reorder(Posicion, Orden), y = `mean(Cmp_Total)`)) +
@@ -287,8 +288,11 @@ promedio_pos %>%
 
 ```
 
-```{r distribucion por pais, echo=FALSE} 
+```{r d, echo=FALSE} 
 
-
+pases_progresivos <- pases_jugadores_podado %>% 
+  group_by(Posicion) %>% 
+  summarise(sum(Prog)) %>% 
+  ungroup()
 
 ```
