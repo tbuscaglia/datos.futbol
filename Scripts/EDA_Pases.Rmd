@@ -1,0 +1,298 @@
+---
+title: "EDA"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+paquetes <- list(
+  "Tidyverse"   = list("dplyr", "tidyr", "tidyselect", "stringr", "ggplot2"),
+  "API"         = list("worldfootballR"), #API que trae datos, paquete instalado de GitHub 
+  "Estadistica" = list("fitdistrplus")
+)
+
+lapply(
+  as.list(
+    c(paquetes, recursive = TRUE, use.names = FALSE)),
+  function(x) {
+    library(x, character.only = TRUE, verbose = FALSE)
+  })
+
+rm(list = c("paquetes"))
+
+```
+
+```{r traer datos, echo=FALSE}
+
+pases_jugadores <- fb_big5_advanced_season_stats(
+  season_end_year = c(2018:2021),
+  stat_type       = "passing",
+  team_or_player  = "player"
+)
+
+```
+
+```{r jugadores podados, echo=FALSE} 
+
+# Descarto los jugadores que hayan jugado menos del 10% de los minutos totales
+
+pases_jugadores_podado <- pases_jugadores %>%
+  filter(Mins_Per_90 > 9, Cmp_Total > 0)
+
+```
+
+# Pases Totales
+
+A continuacion se hara un analisis de la cantidad de pases completados para todos los jugadores de las 5 grandes ligas de Europa (Inglaterra, Francia, España, Alemania, Italia). Los datos analizados son de los años 2018 a 2021. Para realizar el analisis se utilizara aquellos jugadores que hayan jugado mas del 10% de los minutos posibles. 
+
+## Estadistica Descriptiva:
+
+
+Media:
+
+Por el teorema central del limite (TCL) la media muestral se aproxima a la esperanza de la variable aleatorea X = Pases completados por jugador en una temporada
+
+```{r media, echo=FALSE} 
+
+media_pases_totales <- round(
+  mean(pases_jugadores_podado$Cmp_Total, na.rm = TRUE),
+  digits = 2
+  ) %>% 
+  print()
+
+``` 
+
+Mediana
+
+```{r mediana, echo=FALSE} 
+
+mediana_pases_totales <- round(median(pases_jugadores_podado$Cmp_Total, na.rm = TRUE), digits = 2) %>%
+  print() 
+  
+```  
+
+Desvio Estandar
+
+```{r desvio estandar, echo=FALSE} 
+
+desvio_pases_totales <- round(sd(pases_jugadores_podado$Cmp_Total, na.rm = TRUE), digits = 2) %>% 
+  print()
+
+```
+
+### Distribucion de Pases
+
+```{r distribucion de datos, echo=FALSE} 
+
+pases_jugadores_podado %>%
+ ggplot(aes(x = Cmp_Total)) +
+  geom_histogram(aes(y = ..density..), binwidth = .5, colour = "black", fill = "white") +
+  geom_density(alpha = .2, fill = "#FF6666") +
+  geom_vline(xintercept = media_pases_totales, color = "red") 
+
+
+``` 
+
+Esta funcion de densidad parece ser parecida a la distribucion de una funcion gamma. Al compararlo con una funcion de distribucion gamma de parametro "shape" igual a dos y luego tres se podria sospechar que el parametro de la distribucion de los datos va a estar cercano a esos numeros. 
+
+Distribucion Gamma, Shape = 2:
+
+```{r distribucion gamma shape 2, echo=FALSE}  
+
+set.seed(max(pases_jugadores_podado$Cmp_Total, na.rm = TRUE))
+
+N <- nrow(pases_jugadores_podado)
+
+distribucion_gamma <- rgamma(N, shape = 2)
+
+hist(distribucion_gamma, breaks = N, main = "")
+
+```
+
+Distribucion Gamma, Shape = 3:
+
+```{r distribucion gamma shape 3, echo=FALSE} 
+
+distribucion_gamma <- rgamma(N, shape = 3)
+
+hist(distribucion_gamma, breaks = N, main = "")
+
+```
+
+Voy a utilizar el metodo estimacion de maxima verisimilitud (EMV) para calcular los parametros de la funcion gamma de los datos. El calculo devuelve los siguientes parametros:
+
+```{r distribucion gamma estimacion, echo=FALSE} 
+
+parametros_gamma <- fitdist(pases_jugadores_podado$Cmp_Total, distr = "gamma", method = "mle")
+
+parametros_gamma
+
+
+``` 
+
+La distribucion de una funcion gamma de los parametros calculados se grafica de la siguiente forma:
+
+```{r distribucion gamma estimacion grafico, echo=FALSE} 
+
+distribucion_datos <- rgamma(N, shape = 3.110569356, rate = 0.004032972)
+
+hist(distribucion_datos, breaks = N, main = "")
+
+``` 
+
+A la vista, parece estar bastante acertado a la distribucion de los datos de pases. 
+
+Para comprobar si los datos efectivamente siguen una distibucion gamma de los parametros encontrados voy a comparar las dos distribuciones
+
+```{r distribucion gamma demostracion, echo=FALSE} 
+
+data <- rgamma(N, shape = 3.110569356, rate = 0.004032972) + pases_jugadores_podado$Cmp_Total
+
+ans <- fitdist(data, distr = "gamma", method = "mle")
+
+plot(ans)
+
+``` 
+
+Tanto el P-P plot como el Q-Q plot son rectan con lo cual indica que sus distribuciones son identicas. Esto quiere decir que los parametros encontrados de la funcion de distribucion gamma son efectivamente los parametros de la distribucion de los datos de pases completados. 
+
+```{r distribucion por pais, echo=FALSE} 
+
+pases_jugadores_podado %>%
+ ggplot(aes(x = Cmp_Total)) +
+  geom_histogram(aes(y = ..density..), binwidth = .5, colour = "black", fill = "white") +
+  geom_density(alpha = .2, fill = "#FF6666") +
+  facet_grid(rows = vars(Comp))
+
+``` 
+
+
+```{r media por pais, echo=FALSE} 
+
+pases_por_liga <- pases_jugadores_podado %>% 
+  group_by(Comp) %>%
+  summarise(Promedio = mean(Cmp_Total))  
+
+pases_por_liga %>% 
+  ggplot(mapping = aes(x = Comp, y = Promedio)) +
+  geom_bar(stat='identity') +
+  coord_flip()
+
+``` 
+
+```{r desviacion estandar por pais, echo=FALSE} 
+
+sd(pases_por_liga$Promedio)
+
+```
+
+
+# Jugadores elite
+
+Mirando los graficos de distribucion de cantidad de pases, se puede observar como la Premier League parece tener mas jugadores que superan a los 1500 pases
+
+Para ver si esto es verdadero, voy a calcular la proporcion de jugadores con mas de 1500 pases para todas las ligas menos la Premier League. 
+
+Proporcion de jugadores con mas de 1500 pases:
+
+```{r jugadores elite otras ligas, echo=FALSE} 
+
+# Proporcion de las otras ligas
+
+ligas_comparacion <- pases_jugadores_podado %>% 
+  group_by(Comp) %>% 
+  filter(Comp != "Premier League") 
+
+total <- nrow(ligas_comparacion)
+
+ligas_comparacion <- ligas_comparacion %>% 
+  filter(Cmp_Total >= 1500) %>% 
+  ungroup()
+
+mayor <- nrow(ligas_comparacion)
+
+proporcion_ligas <- scales::percent(round(mayor / total, digits = 4))
+
+proporcion_ligas
+
+```
+
+Ahora voy a hacer el mismo calculo para la Premier League.
+
+Proporcion de jugadores con mas de 1500 pases en la Premier League:
+
+```{r jugadores elite premier league, echo=FALSE} 
+# Proporcion de la Premier League
+
+premier <- pases_jugadores_podado %>% 
+  group_by(Comp) %>% 
+  filter(Comp == "Premier League") 
+
+total_prem <- nrow(premier)
+
+premier <- premier %>% 
+  filter(Cmp_Total >= 1500) %>% 
+  ungroup()
+
+mayor_prem <- nrow(premier)
+
+proporcion_premier <- scales::percent(round(mayor_prem / total_prem, digits = 4))
+
+proporcion_premier
+
+```
+
+```{r Columna posicion, echo=FALSE} 
+
+pases_jugadores_podado <- pases_jugadores_podado %>% 
+  mutate(
+    Posicion = case_when(
+      Pos == "GK" ~ "Arquero",
+      Pos == "DF" | Pos == "DF,MF" | Pos == "DF,FW" ~ "Defensor",
+      Pos == "MF" | Pos == "MF,FW" | Pos == "MF,DF" ~ "Mediocampista",
+      Pos == "FW" | Pos == "FW,MF" | Pos == "FW,DF" ~ "Atacante"
+    )
+  )
+
+```
+
+```{r pases por posicion, echo=FALSE} 
+
+promedio_pos <- pases_jugadores_podado %>% 
+  group_by(Posicion) %>% 
+  summarise(mean(Cmp_Total)) %>% 
+  mutate(
+    Orden = case_when(
+      Posicion == "Arquero"       ~ 1,
+      Posicion == "Defensor"      ~ 2,
+      Posicion == "Mediocampista" ~ 3,
+      Posicion == "Atacante"      ~ 4
+    ),
+    Posicion = as.factor(Posicion)
+  ) %>% 
+  arrange(Orden) %>% 
+  ungroup()
+
+```
+
+```{r distribucion por posicion, echo=FALSE} 
+
+promedio_pos %>% 
+  ggplot(aes(x = reorder(Posicion, Orden), y = `mean(Cmp_Total)`)) +
+  geom_bar(stat = "identity") +
+  ylab("Promedio de Pases") +
+  xlab("Posicion") +
+  labs(title = "Pases Totales por Posicion")
+
+```
+
+```{r d, echo=FALSE} 
+
+pases_progresivos <- pases_jugadores_podado %>% 
+  group_by(Posicion) %>% 
+  summarise(sum(Prog)) %>% 
+  ungroup()
+
+```
